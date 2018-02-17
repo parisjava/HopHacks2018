@@ -7,7 +7,7 @@
 import scipy.io
 import numpy as np
 import pandas as pd
-digit_train_mat = scipy.io.loadmat('digits-train.mat')
+digit_train_mat = scipy.io.loadmat('./digits-train.mat')
 digit_test_mat = scipy.io.loadmat('digits-test.mat')
 
 
@@ -44,12 +44,10 @@ fea_scat_test_df = pd.DataFrame(digit_test_mat['fea_scat_test']).T
 
 # In[26]:
 
-
-img_train_df
-fea_hog_train_df
-fea_scat_train_df.shape
 df_train = pd.concat([img_train_df, fea_hog_train_df, fea_scat_train_df], axis = 1)
-df_train.shape
+
+df_train.to_csv("./test.csv");
+#df_train.shape
 
 
 # In[28]:
@@ -63,25 +61,26 @@ df_test = pd.concat([img_test_df, fea_hog_test_df, fea_scat_test_df], axis = 1)
 
 from sklearn.cluster import KMeans
 
-kmeans = KMeans(n_clusters = 5).fit(df_train)
+kmeans = KMeans(n_clusters = 5).fit(fea_hog_test_df)
 
 
 # In[67]:
 
-
+"""
 from sklearn.cluster import SpectralClustering
 
 sc = SpectralClustering(n_clusters = 5).fit(df_train)
-
+"""
 
 # In[62]:
 
 
-labels_pred = sc.predict(fea_scat_train_df)
-
-
+labels_pred = kmeans.fit_predict(fea_hog_test_df)
+f = open('numberstest.txt' , 'w')
+for x in range(0, labels_pred.shape[0]) :
+    f.write(str(labels_pred[x] + 1) + '\n')
+f.close()
 # In[63]:
-
 
 
 from sklearn.metrics.cluster import supervised
@@ -95,9 +94,8 @@ value = supervised.contingency_matrix(labels_true, labels_pred)
 [r, c] = linear_sum_assignment(-value)
 accr = value[r, c].sum() / len(labels_true)
 
-
 # In[64]:
 
 
-accr
+print(accr)
 
